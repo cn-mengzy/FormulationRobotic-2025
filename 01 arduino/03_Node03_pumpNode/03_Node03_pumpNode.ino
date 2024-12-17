@@ -39,7 +39,7 @@ const uint64_t rxAddress1 = 0xE8E8F0F0C1LL; // RX_1
 const uint64_t rxAddress2 = 0xE8E8F0F0C1LL; // RX_2
 const uint64_t txAddress1 = 0xE8E8F0F0A1LL; // TX_to_Node1
 
-const uint8_t channel_A1_90 = 90; // RF channel
+const uint8_t channel= 90; // RF channel
 
 const int MAX_MESSAGE_LENGTH = 32;
 
@@ -57,8 +57,8 @@ long matchNumber(String command, String keyword) {
     int c_start = command.indexOf(keyword);
         
     if (c_start != -1) {
-        Serial.println(command);
-        Serial.println(keyword);
+//        Serial.println(command);
+//        Serial.println(keyword);
         
         c_start += keyword.length();  // 移动到关键字之后的数字的开始位置
         
@@ -250,23 +250,25 @@ void setup() {
   pinMode(ENABLE_PIN, OUTPUT);
   digitalWrite(ENABLE_PIN, LOW);
 
-   motorspeed_x = EEPROM.get(0, motorspeed_x);
-   motorspeed_y =  EEPROM.get(sizeof(long), motorspeed_y);
-   motorspeed_z =  EEPROM.get(2*sizeof(long), motorspeed_z);
+  motorspeed_x = EEPROM.get(0, motorspeed_x);
+  motorspeed_y =  EEPROM.get(sizeof(long), motorspeed_y);
+  motorspeed_z =  EEPROM.get(2*sizeof(long), motorspeed_z);
 
-    delete_motor_time();
-    
-  // 打开串口 波特率115200
+  delete_motor_time();
+
+  radio.begin();                        // Setup and configure rf radio
+  radio.setChannel(channel);            // Set the channel
+  radio.openWritingPipe(txAddress1);         // Open the default reading and writing pipe
+  radio.openReadingPipe(1, rxAddress1);
+  radio.setPALevel(RF24_PA_MAX);        // Set PA LOW for this demonstration. We want the radio to be as lossy as possible for this example.
+  radio.setAutoAck(1);                  // Ensure autoACK is enabled
+  radio.setRetries(15, 15);             // Optionally, increase the delay between retries. Want the number of auto-retries as high as possible (15)
+  radio.setCRCLength(RF24_CRC_16);      // Set CRC length to 16-bit to ensure quality of data
+  radio.startListening();               // Start listening
+  radio.powerUp();                      //Power up the radio
+
+    // 打开串口 波特率115200
   Serial.begin(115200);
-
-  //配制RF模块
-  radio.begin();
-  radio.setChannel(channel_A1_90);
-  radio.openWritingPipe(txAddress1); // 设置发送通道
-  radio.openReadingPipe(1, rxAddress1); // 设置接收通道
-  radio.setPALevel(RF24_PA_LOW);
-   radio.setRetries(15, 15);
-  radio.startListening();
   Serial.println("ok");
 }
 

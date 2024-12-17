@@ -1,7 +1,7 @@
-//Node02 = V1.0
+ //Node02 = V1.0
 //timeStamp = 2024-Dec-17th
 
-char nodeVersion[] = "Node02 version1.0.0";
+char nodeVersion[] = "Node02 version1.0.1";
 
 // 0. 第三方库
 #include <SPI.h>
@@ -20,7 +20,7 @@ const uint64_t rxAddress2 = 0xE8E8F0F0B2LL; // 监听地址2：接收Node3消息
 
 const uint64_t txAddress1 = 0xE8E8F0F0A1LL; // 发送 Node1
 const uint64_t txAddress2 = 0xE8E8F0F0C1LL; // 发送 Node3
-const uint8_t channel_A1_90 = 90; // 射频通道
+const uint8_t channel = 90; // 射频通道
 
 
 const int MAX_MESSAGE_LENGTH = 32;
@@ -45,15 +45,35 @@ AccelStepper stepperY(AccelStepper::DRIVER, Y_STEP_PIN, Y_DIR_PIN);
 AccelStepper stepperZ(AccelStepper::DRIVER, Z_STEP_PIN, Z_DIR_PIN);
 
 // 6. 自定义函数 matchNumber 搜索字符串中的关键参数并赋值给相应变量
-int matchNumber(String command, String keyword) {
-    int start = command.indexOf(keyword);
-    if (start != -1) {
-        int end = command.indexOf(" ", start);
-        String num = command.substring(start + keyword.length(), end);
-        return num.toInt();
+long matchNumber(String command, String keyword) {
+    int c_start = command.indexOf(keyword);
+        
+    if (c_start != -1) {
+//        Serial.println(command);
+//        Serial.println(keyword);
+        
+        c_start += keyword.length();  // 移动到关键字之后的数字的开始位置
+        
+        int c_end = c_start;            // 初始化结束位置
+        
+        // 找到数字部分的结束位置
+        while (c_end < command.length() && isDigit(command[c_end])) {
+            c_end++;
+        }
+
+        String numStr = command.substring(c_start, c_end);
+        
+        // 使用strtol从字符串中解析长整型
+        char* endPtr;
+        long num = strtol(numStr.c_str(), &endPtr, 10);
+        
+        if (*endPtr == '\0') {  // 确保整个字符串都是数字
+            return num;
+        }
     }
-return -1;
+    return -1;  // 如果解析失败或找不到关键字，则返回-1
 }
+
 void dispenser_home(){
   int delay_time = 1000000 / 700;
     digitalWrite(Z_DIR_PIN, LOW);
@@ -276,14 +296,16 @@ void setup() {
     
   Serial.begin(115200);
 
-  // 配置 RF 模块
-  radio.begin();
-  radio.setChannel(channel_A1_90);
-  radio.openWritingPipe(txAddress1); // 默认为Node2的地址
+  radio.begin();                        // Setup and configure rf radio
+  radio.setChannel(channel);            // Set the channel
+  radio.openWritingPipe(txAddress1);         // Open the default reading and writing pipe
   radio.openReadingPipe(1, rxAddress1);
-  radio.setPALevel(RF24_PA_LOW);
-  radio.startListening();
-  //Serial.println("ok");
+  radio.setPALevel(RF24_PA_MAX);        // Set PA LOW for this demonstration. We want the radio to be as lossy as possible for this example.
+  radio.setAutoAck(1);                  // Ensure autoACK is enabled
+  radio.setRetries(15, 15);             // Optionally, increase the delay between retries. Want the number of auto-retries as high as possible (15)
+  radio.setCRCLength(RF24_CRC_16);      // Set CRC length to 16-bit to ensure quality of data
+  radio.startListening();               // Start listening
+  radio.powerUp();                      //Power up the radio
 }
 // 16. LOOP
 void loop() {
