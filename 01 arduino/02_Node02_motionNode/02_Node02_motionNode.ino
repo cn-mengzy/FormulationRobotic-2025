@@ -239,7 +239,7 @@ void reinitializeRF24() {
     radio.powerUp();
     // 重新配置RF模块
     radio.begin();
-    radio.setChannel(channel_A1_90);
+    radio.setChannel(channel);
     radio.openWritingPipe(txAddress1); // 默认为Node2的地址
     radio.openReadingPipe(1, rxAddress1);
     radio.setPALevel(RF24_PA_LOW); // 设置为最大功率等级
