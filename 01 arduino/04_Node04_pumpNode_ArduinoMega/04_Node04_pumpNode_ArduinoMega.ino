@@ -152,7 +152,6 @@ void setup() {
     pinMode(motor_x_dir,OUTPUT);
     pinMode(motor_x_step,OUTPUT);
     pinMode(enable_x, OUTPUT);
-    digitalWrite(enable_x, LOW);
     pinMode(button_moveMax_x, OUTPUT);
     pinMode(button_moveMin_x, OUTPUT);
     pinMode(button_reset_x, OUTPUT);
@@ -161,7 +160,6 @@ void setup() {
     pinMode(motor_y_dir,OUTPUT);
     pinMode(motor_y_step,OUTPUT);
     pinMode(enable_y, OUTPUT);
-    digitalWrite(enable_y, LOW);
     pinMode(button_moveMax_y, INPUT_PULLUP);
     pinMode(button_moveMin_y, INPUT_PULLUP);
     pinMode(button_reset_y, INPUT_PULLUP);
@@ -170,7 +168,6 @@ void setup() {
     pinMode(motor_z_dir,OUTPUT);
     pinMode(motor_z_step,OUTPUT);
     pinMode(enable_z, OUTPUT);
-    digitalWrite(enable_z, LOW);
     pinMode(button_moveMax_z, INPUT_PULLUP);
     pinMode(button_moveMin_z, INPUT_PULLUP);
     pinMode(button_reset_z, INPUT_PULLUP);
@@ -179,7 +176,6 @@ void setup() {
     pinMode(motor_e_dir,OUTPUT);
     pinMode(motor_e_step,OUTPUT);
     pinMode(enable_e, OUTPUT);
-    digitalWrite(enable_e, LOW);
     pinMode(button_moveMax_e, INPUT_PULLUP);
     pinMode(button_moveMin_e, INPUT_PULLUP);
     pinMode(button_reset_e, INPUT_PULLUP);
@@ -189,23 +185,32 @@ void setup() {
     pinMode(button_reset_y, INPUT_PULLUP);
     pinMode(button_reset_z, INPUT_PULLUP);
     pinMode(button_reset_all, INPUT_PULLUP);
-
     pinMode(switch_mode, INPUT_PULLUP);
+
+    digitalWrite(enable_x, LOW);
+    digitalWrite(enable_y, LOW);
+    digitalWrite(enable_z, LOW);
+    digitalWrite(enable_e, LOW);
 
     EEPROM.get(0, speed_x);
     EEPROM.get(sizeof(long), speed_y);
     EEPROM.get(2*sizeof(long), speed_z);
     EEPROM.get(3*sizeof(long), speed_e);
     // Open Serial
-    Serial.begin(115200);
+    
     //Turn on RF
     radio.begin();
-    radio.setChannel(channel_A1_90);
+    radio.setChannel(channel);
     radio.openWritingPipe(txAddress1); // setting sending address
     radio.openReadingPipe(1, rxAddress1); // setting receive address
-    radio.setPALevel(RF24_PA_LOW);
+    radio.setPALevel(RF24_PA_MAX);
+    radio.setAutoAck(1); 
     radio.setRetries(15, 15);
+    radio.setCRCLength(RF24_CRC_16); 
     radio.startListening();
+    radio.powerUp();  
+    
+    Serial.begin(115200);
     Serial.println("ok");
 }
 void loop() {
