@@ -15,7 +15,7 @@ const uint64_t node5 = 0xE8E8F0F0E1LL;
 const uint64_t node6 = 0xE8E8F0F0F1LL; 
 const uint8_t channel=90; 
 
-const int MAX_MESSAGE_LENGTH = 64;
+const int MAX_MESSAGE_LENGTH = 32;
 
 long matchNumber(String command, String keyword) {
     int c_start = command.indexOf(keyword);
@@ -61,9 +61,10 @@ void setup() {
   radio.openReadingPipe(1, node1A);
   radio.openReadingPipe(2, node1B);
   radio.setPALevel(RF24_PA_MAX);        // Set PA LOW for this demonstration. We want the radio to be as lossy as possible for this example.
+  radio.setDataRate(RF24_2MBPS);
   radio.setAutoAck(1);                  // Ensure autoACK is enabled
   radio.setRetries(15, 15);             // Optionally, increase the delay between retries. Want the number of auto-retries as high as possible (15)
-  radio.setCRCLength(RF24_CRC_16);      // Set CRC length to 16-bit to ensure quality of data
+  //radio.setCRCLength(RF24_CRC_16);      // Set CRC length to 16-bit to ensure quality of data
   radio.startListening();               // Start listening
   radio.powerUp();                      //Power up the radio
 }
@@ -76,7 +77,7 @@ void loop() {
       message[bytesRead] = '\0'; // Add null-terminator
 
       int targetNodeId = matchNumber(message, "$");
-      
+      radio.stopListening();   
       if (targetNodeId == 2){
           radio.openWritingPipe(node2);
       }
@@ -92,11 +93,9 @@ void loop() {
       else if (targetNodeId == 6){
           radio.openWritingPipe(node6);
       }
-          radio.stopListening();
-          radio.write(message, strlen(message) + 1);                                    // Include the null-terminator
+                                                   // Include the null-terminator
+          radio.write(message, strlen(message) + 1);
           radio.startListening();
-          radio.flush_rx();
-          radio.flush_tx();
 }
   if (radio.available()) {                                                              // 从 RF 接收数据并通过串口回传给电脑
       char message[MAX_MESSAGE_LENGTH + 1];

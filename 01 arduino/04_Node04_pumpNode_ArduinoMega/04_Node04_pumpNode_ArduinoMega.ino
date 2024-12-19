@@ -68,7 +68,7 @@ RF24 radio(rf_CE, rf_CSN); // CE, CSN
 const uint64_t rxAddress1 = 0xE8E8F0F0D1LL; // RX_1
 const uint64_t rxAddress2 = 0xE8E8F0F0D1LL; // RX_2
 const uint64_t txAddress1 = 0xE8E8F0F0A1LL; // TX_to_Node1
-const uint8_t channel_A1_90 = 90; // RF channel
+const uint8_t channel = 90; // RF channel
 const int MAX_MESSAGE_LENGTH = 32;
 // 5.Custom function/def/void
 long matchNumber(String command, String keyword) {
@@ -204,6 +204,7 @@ void setup() {
     radio.openWritingPipe(txAddress1); // setting sending address
     radio.openReadingPipe(1, rxAddress1); // setting receive address
     radio.setPALevel(RF24_PA_MAX);
+    radio.setDataRate(RF24_2MBPS);
     radio.setAutoAck(1); 
     radio.setRetries(15, 15);
     radio.setCRCLength(RF24_CRC_16); 

@@ -298,12 +298,13 @@ void setup() {
 
   radio.begin();                        // Setup and configure rf radio
   radio.setChannel(channel);            // Set the channel
-  radio.openWritingPipe(txAddress1);         // Open the default reading and writing pipe
-  radio.openReadingPipe(1, rxAddress1);
   radio.setPALevel(RF24_PA_MAX);        // Set PA LOW for this demonstration. We want the radio to be as lossy as possible for this example.
+  radio.setDataRate(RF24_2MBPS);
   radio.setAutoAck(1);                  // Ensure autoACK is enabled
   radio.setRetries(15, 15);             // Optionally, increase the delay between retries. Want the number of auto-retries as high as possible (15)
   radio.setCRCLength(RF24_CRC_16);      // Set CRC length to 16-bit to ensure quality of data
+  radio.openWritingPipe(txAddress1);         // Open the default reading and writing pipe
+  radio.openReadingPipe(1, rxAddress1);
   radio.startListening();               // Start listening
   radio.powerUp();                      //Power up the radio
 }
@@ -318,45 +319,40 @@ void loop() {
       if(targetNodeId == nodeId){
           int c = matchNumber(message,"c");
           switch (c) {
-          
               case 0:
                   reply("ok");
                   char message4[32]; // 创建一个足够大的字符数组来保存消息
                   strcpy(message4, "Node2 XY-Motion");
                   send_to_node(message4,txAddress1); // 发送消息
-                  delayMicroseconds(10);
+                  delayMicroseconds(500);
                   
-                  strcpy(message4, "1: ReplyOK");
+                  strcpy(message4, "1: replyOk");
                   send_to_node(message4,txAddress1); // 发送消息
-                  delayMicroseconds(10);
-
-                  // strcpy(message4, "4: moveXY 6:zHome");
-                  // send_to_node(message4,txAddress1); // 发送消息
-                  // delayMicroseconds(10);
+                  delayMicroseconds(500);
                   
-                  strcpy(message4, "2: GoHome");
+                  strcpy(message4, "2: findHome");
                   send_to_node(message4,txAddress1);
-                  delayMicroseconds(10);
+                  delayMicroseconds(500);
 
-                  strcpy(message4, "3: z go");
+                  strcpy(message4, "3: moveZ");
                   send_to_node(message4,txAddress1);
-                  delayMicroseconds(10);
+                  delayMicroseconds(500);
 
-                  strcpy(message4, "4: MoveXY");
+                  strcpy(message4, "4: moveXY");
                   send_to_node(message4,txAddress1);
-                  delayMicroseconds(10);
+                  delayMicroseconds(500);
 
-                  strcpy(message4, "5: CircleXY(key:r,n,s)");
+                  strcpy(message4, "5: circleXY(key:r,n,s)");
                   send_to_node(message4,txAddress1);
-                  delayMicroseconds(10);
+                  delayMicroseconds(500);
 
                   strcpy(message4, "6: dispenser home");
                   send_to_node(message4,txAddress1);
-                  delayMicroseconds(10);
+                  delayMicroseconds(500);
 
                   strcpy(message4, "7: dispenser go");
                   send_to_node(message4,txAddress1);
-                  delayMicroseconds(10);
+                  delayMicroseconds(100);
                   
                   reply("!");
       
@@ -379,7 +375,7 @@ void loop() {
                 stepperX.setCurrentPosition(0);
                 stepperY.setCurrentPosition(0);
                 //dispenser_home();
-                delayMicroseconds(10);
+                delayMicroseconds(100);
                 reply("!");
                 break;
                 

@@ -261,6 +261,7 @@ void setup() {
   radio.openWritingPipe(txAddress1);         // Open the default reading and writing pipe
   radio.openReadingPipe(1, rxAddress1);
   radio.setPALevel(RF24_PA_MAX);        // Set PA LOW for this demonstration. We want the radio to be as lossy as possible for this example.
+  radio.setDataRate(RF24_2MBPS);
   radio.setAutoAck(1);                  // Ensure autoACK is enabled
   radio.setRetries(15, 15);             // Optionally, increase the delay between retries. Want the number of auto-retries as high as possible (15)
   radio.setCRCLength(RF24_CRC_16);      // Set CRC length to 16-bit to ensure quality of data
